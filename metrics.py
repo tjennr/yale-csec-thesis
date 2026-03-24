@@ -24,5 +24,5 @@ def assortative(workers, firms):
     ranked_firms = np.argsort(-firms["salary"])
     n = min(len(workers["quality"]), len(firms["salary"]))
 
-    # Multiplicative
+    # Multiply in order
     return np.sum(workers["quality"][ranked_workers[:n]] * firms["salary"][ranked_firms[:n]])
