@@ -2,7 +2,7 @@ import time
 import numpy as np
 from agents import generate_workers, generate_firms
 from matching import match
-from metrics import match_quality, assortative
+from metrics import match_quality, assortative_quality
 
 
 n_workers = 500
@@ -22,7 +22,7 @@ def run_simulation():
 
     # Compute metrics
     total_match_quality, n = match_quality(workers, firms)
-    assortative_match_quality = assortative(workers, firms)
+    assortative_match_quality = assortative_quality(workers, firms)
 
     return {
         "matches": n,
