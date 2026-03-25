@@ -46,6 +46,17 @@ def workers_apply(workers, firms):
     #     print(f"Firm {j}: salary={salary:.2f}, applicants={n_applicants}")
 
 
+def firms_rank_workers(workers, firms):
+    """Firms rank workers by perceived quality"""
+
+    # TODO: add noise for realistic imperfect evaluation of applications
+    for firm in range(firms["m"]):
+        applicants = firms["applicants"][firm]
+        if len(applicants) > 0:
+            sorted_indices = np.argsort(-workers["quality"][applicants])
+            firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])
+
+
 def firms_offer(workers, firms):
     """Firms give an offer to their perceived highest-quality applicant"""
 
@@ -76,13 +87,3 @@ def workers_accept(workers, firms):
             if firm != best_firm:
                 if worker in firms["ranked_applicants"][firm]:
                     firms["ranked_applicants"][firm].remove(worker)
-
-
-def firms_rank_workers(workers, firms):
-    """Firms rank workers by perceived quality"""
-
-    for firm in range(firms["m"]):
-        applicants = firms["applicants"][firm]
-        if len(applicants) > 0:
-            sorted_indices = np.argsort(-workers["quality"][applicants])
-            firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])
