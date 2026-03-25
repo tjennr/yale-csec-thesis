@@ -25,7 +25,7 @@ def generate_workers(n_workers, firms):
 
     workers = {
         "n": n_workers,
-        "quality": np.random.lognormal(mean=0, sigma=0.5, size=n_workers),
+        "quality": np.clip(np.random.normal(0.5, 0.15, n_workers), 0, 1),
         "wtp_time": wtp_time,
         "wtp_effort": wtp_effort,
         "wtp_money": wtp_money,
@@ -41,7 +41,7 @@ def generate_firms(m_firms):
 
     firms = {
         "m": m_firms,
-        "salary": np.random.lognormal(mean=np.log(1), sigma=0.3, size=m_firms),
+        "salary":np.clip(np.random.normal(0.5, 0.15, m_firms), 0, 1),
         "coa_time": np.zeros(m_firms),
         "coa_effort": np.zeros(m_firms),
         "coa_money": np.zeros(m_firms),
