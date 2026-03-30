@@ -6,9 +6,17 @@ from matching import match
 from metrics import match_quality, assortative_match_quality
 
 
-N_WORKERS = 500
-M_FIRMS = 500
+N_WORKERS = 200
+M_FIRMS = 200
 ROUNDS = 50
+
+INTERVENTIONS = [
+    None,
+    "cap",
+    "fee",
+    "cover_letter",
+    "assessment"
+]
 
 
 def run_simulation():
@@ -18,8 +26,8 @@ def run_simulation():
     firms = generate_firms(M_FIRMS)
     workers = generate_workers(N_WORKERS, firms)
 
-    def clean():
-        """Reset agent match attributes inbetween interventions"""
+    def reset_state():
+        """Reset agent match state inbetween interventions"""
         workers["offers"] = [[] for _ in range(N_WORKERS)]
         workers["accepted"] = [None for _ in range(N_WORKERS)]
 
@@ -27,31 +35,21 @@ def run_simulation():
         firms["ranked_applicants"] = [deque() for _ in range(M_FIRMS)]
         firms["filled"] = [None for _ in range(M_FIRMS)]
         firms["coa_money"] = np.full(M_FIRMS, 0)
+        firms["coa_time"] = np.full(M_FIRMS, 0)
 
-    # Match -> compute metrics -> clean matchings
-    match(workers, firms)
-    baseline_quality, n = match_quality(workers, firms)
-    clean()
+    # Match -> compute results -> clean matchings
+    results = {}
+    for intervention in INTERVENTIONS:
+        match(workers, firms, intervention)
+        quality, matches = match_quality(workers, firms)
+        key = intervention if intervention is not None else "baseline"
+        results[f"{key}_quality"] = quality
+        results[f"{key}_matches"] = matches
+        reset_state()
+        
+    results["assortative_quality"] = assortative_match_quality(workers, firms)
 
-    match(workers, firms, intervention="cap")
-    cap_quality, m = match_quality(workers, firms)
-    clean()
-
-    match(workers, firms, intervention="fee")
-    fee_quality, q = match_quality(workers, firms)
-    clean()
-
-    assortative_quality = assortative_match_quality(workers, firms)
-
-    return {
-        "baseline_matches": n,
-        "baseline_quality": baseline_quality,
-        "cap_matches": m,
-        "cap_quality": cap_quality,
-        "fee_matches": q,
-        "fee_quality": fee_quality,
-        "assortative_quality": assortative_quality,
-    }
+    return results
 
 
 if __name__ == "__main__":
@@ -71,12 +69,11 @@ if __name__ == "__main__":
     }
 
     # Compute efficiency
-    baseline_efficiency = avg_results["baseline_quality"] / avg_results["assortative_quality"]
-    cap_efficiency = avg_results["cap_quality"] / avg_results["assortative_quality"]
-    fee_efficiency = avg_results["fee_quality"] / avg_results["assortative_quality"]
-    avg_results["baseline_efficiency"] = baseline_efficiency
-    avg_results["cap_efficiency"] = cap_efficiency
-    avg_results["fee_efficiency"] = fee_efficiency
+    for intervention in INTERVENTIONS:
+        key = intervention if intervention is not None else "baseline"
+        avg_results[f"{key}_efficiency"] = (
+            avg_results[f"{key}_quality"] / avg_results["assortative_quality"]
+        )
 
     end = time.time()
 
