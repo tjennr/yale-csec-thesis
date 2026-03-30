@@ -7,8 +7,8 @@ from metrics import match_quality, assortative_match_quality
 from results_table import summarize_results, print_results_table
 
 
-N_WORKERS = 200
-M_FIRMS = 200
+N_WORKERS = 500
+M_FIRMS = 500
 ROUNDS = 50
 
 INTERVENTIONS = [
@@ -60,8 +60,8 @@ if __name__ == "__main__":
 
     # Run simulations
     for _ in range(ROUNDS):
-        sim_results = run_simulation()
-        results.append(run_simulation())
+        result = run_simulation()
+        results.append(result)
 
     # Results
     summary = summarize_results(results, INTERVENTIONS)

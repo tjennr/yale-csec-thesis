@@ -21,7 +21,7 @@ def run_assessments(workers, firms, firm):
 def pass_assessment(workers, worker, firms, firm):
     """Returns True if a worker passes a firm's assessment"""
 
-    assessment_difficulty = 1 # placeholder!!!
+    assessment_difficulty = 0.5 # placeholder!!!
     assessment_time = firms["coa_time"][firm]
 
     wtp_time = workers["wtp_time"][worker][firm]

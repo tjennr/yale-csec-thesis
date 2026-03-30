@@ -21,11 +21,11 @@ def set_intervention(firms, intervention):
     m = firms["m"]
 
     if intervention == "cap":
-        firms["coa_money"] = np.full(m, 50)
+        firms["cap"] = np.full(m, 50)
     elif intervention == "fee":
         firms["coa_money"] = np.full(m, 0.3)
     elif intervention == "cover_letter":
-        firms["coa_time"] = np.full(m, 0.3)
+        firms["coa_time"] = np.full(m, 0.5)
     elif intervention == "assessment":
         # coa time + effort + quality
         firms["coa_time"] = np.full(m, 0.5)
@@ -40,8 +40,9 @@ def workers_apply(workers, firms):
     n_workers = workers["n"]
     m_firms = firms["m"]
 
-    # Rank firms by salary with stochasity (to account for non-salary factors for favoring a firm)
-    noise = np.random.normal(0, 0.5, (n_workers, m_firms))
+    # # Rank firms by salary with stochasity 
+    # # (to mimic workers only seeing a subset of job listings on market and non-salary factors for favoring a firm)
+    noise = np.random.normal(0, 0.3, (n_workers, m_firms))
     perceived_firm_value = firms["salary"] + noise
     firms_ranked = np.argsort(-perceived_firm_value, axis=1)
 
@@ -69,7 +70,6 @@ def workers_apply(workers, firms):
 def firms_screen_workers(workers, firms, intervention):
     """Firms rank workers by perceived quality"""
 
-    # TODO: add noise for realistic imperfect evaluation of applications
     for firm in range(firms["m"]):
         if len(firms["applicants"][firm]) > 0:
 
@@ -80,7 +80,9 @@ def firms_screen_workers(workers, firms, intervention):
                 run_assessments(workers, firms, firm)
             
             applicants = firms["applicants"][firm]
-            sorted_indices = np.argsort(-workers["quality"][applicants])
+            noise = np.random.normal(0, 0.005, len(applicants))
+            perceived_quality = workers["quality"][applicants] + noise
+            sorted_indices = np.argsort(-perceived_quality)
             firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])
 
 
