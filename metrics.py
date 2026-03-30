@@ -16,7 +16,7 @@ def match_quality(workers, firms):
     return total_match_quality, n
 
 
-def assortative_quality(workers, firms):
+def assortative_match_quality(workers, firms):
     """Returns total match quality for an assortative matching"""
 
     # Rank firms by salary, applicants by quality

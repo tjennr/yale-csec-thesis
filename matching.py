@@ -2,19 +2,42 @@ import numpy as np
 from collections import deque
 
 
-def match(workers, firms, max_rounds=10):
+def match(workers, firms, intervention=None, max_rounds=10):
     """Runs matching process: workers apply, firms screen and offer, workers accept"""
 
+    set_intervention(firms, intervention)
     workers_apply(workers, firms)
-    firms_rank_workers(workers, firms)
+    firms_screen_workers(workers, firms, intervention)
     for _ in range(max_rounds):
         if all(filled is not None or len(rank) == 0 for filled, rank in zip(firms["filled"], firms["ranked_applicants"])):
             break
         firms_offer(workers, firms)
         workers_accept(workers, firms)
-        
 
-def workers_apply(workers, firms):
+
+def set_intervention(firms, intervention):
+
+    m = firms["m"]
+
+    if intervention == "cap":
+        # only look at + rank first C applicants from firms["applicants"][firm] list
+        pass
+    elif intervention == "fee":
+        firms["coa_money"] = np.full(m, 0.5)
+    elif intervention == "coverletter":
+        # coa time + effort
+        # todo before workers apply
+        pass
+    elif intervention == "assessment":
+        # coa time + effort + quality
+        # todo before + after workers apply
+        pass
+    elif intervention == "pref_signal":
+        # todo before workers apply
+        pass
+
+
+def workers_apply(workers, firms, intervention):
     """Workers rank and apply to firms"""
 
     n_workers = workers["n"]
@@ -46,13 +69,18 @@ def workers_apply(workers, firms):
     #     print(f"Firm {j}: salary={salary:.2f}, applicants={n_applicants}")
 
 
-def firms_rank_workers(workers, firms):
+def firms_screen_workers(workers, firms, intervention):
     """Firms rank workers by perceived quality"""
 
     # TODO: add noise for realistic imperfect evaluation of applications
     for firm in range(firms["m"]):
         applicants = firms["applicants"][firm]
         if len(applicants) > 0:
+            if intervention == "cap":
+                cap = firms["cap"][firm]
+                np.random.shuffle(firms["applicants"][firm]) # I think we need this to replicate workers simultaneously applying rather than sequentially
+                firms["applicants"][firm] = firms["applicants"][firm][:cap]
+                applicants = firms["applicants"][firm]
             sorted_indices = np.argsort(-workers["quality"][applicants])
             firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])
 

@@ -20,8 +20,12 @@ def generate_workers(n_workers, firms):
     wtp_effort = np.clip(base_effort[:, None] + firm_effect[None, :] + epsilon, 0, 1)
     wtp_money = np.clip(base_money[:, None] + firm_effect[None, :] + epsilon, 0, 1)
 
+
+
     app_capacity = np.random.normal(loc=firms["m"]/2, scale=firms["m"]/4, size=n_workers)
     app_capacity = np.clip(app_capacity, 1, firms["m"]).astype(int)
+
+
 
     workers = {
         "n": n_workers,
@@ -41,10 +45,11 @@ def generate_firms(m_firms):
 
     firms = {
         "m": m_firms,
-        "salary":np.clip(np.random.normal(0.5, 0.15, m_firms), 0, 1),
-        "coa_time": np.zeros(m_firms),
-        "coa_effort": np.zeros(m_firms),
-        "coa_money": np.zeros(m_firms),
+        "salary": np.clip(np.random.normal(0.5, 0.15, m_firms), 0, 1),
+        "coa_time": np.full(m_firms, 0),
+        "coa_effort": np.full(m_firms, 0),
+        "coa_money": np.full(m_firms, 0),
+        "cap": np.full(m_firms, 20),
         "applicants": [[] for _ in range(m_firms)],
         "ranked_applicants": [deque() for _ in range(m_firms)],
         "filled": [None for _ in range(m_firms)]
