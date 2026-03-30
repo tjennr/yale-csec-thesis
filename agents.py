@@ -49,7 +49,7 @@ def generate_firms(m_firms):
         "coa_time": np.full(m_firms, 0),
         "coa_effort": np.full(m_firms, 0),
         "coa_money": np.full(m_firms, 0),
-        "cap": np.full(m_firms, 20),
+        "cap": [None for _ in range(m_firms)],
         "applicants": [[] for _ in range(m_firms)],
         "ranked_applicants": [deque() for _ in range(m_firms)],
         "filled": [None for _ in range(m_firms)]
