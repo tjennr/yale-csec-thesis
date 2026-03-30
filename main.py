@@ -4,6 +4,7 @@ from collections import deque
 from agents import generate_workers, generate_firms
 from matching import match
 from metrics import match_quality, assortative_match_quality
+from results_table import summarize_results, print_results_table
 
 
 N_WORKERS = 200
@@ -60,26 +61,13 @@ if __name__ == "__main__":
     # Run simulations
     for _ in range(ROUNDS):
         sim_results = run_simulation()
-        results.append(sim_results)
+        results.append(run_simulation())
 
-    # Average results
-    avg_results = {
-        key: np.mean([r[key] for r in results])
-        for key in results[0]
-    }
-
-    # Compute efficiency
-    for intervention in INTERVENTIONS:
-        key = intervention if intervention is not None else "baseline"
-        avg_results[f"{key}_efficiency"] = (
-            avg_results[f"{key}_quality"] / avg_results["assortative_quality"]
-        )
+    # Results
+    summary = summarize_results(results, INTERVENTIONS)
 
     end = time.time()
 
     # Print metrics
-    print(f"\n=== Simulation Metrics ({ROUNDS} rounds with {N_WORKERS} workers, {M_FIRMS} firms) ===")
-    print(f"Time: {end - start:.2f}s\n")
-    for key, value in avg_results.items():
-        print(f"{key}: {value:.2f}")
-    print()
+    print(f"\nTime: {end - start:.2f}s")
+    print_results_table(summary)
