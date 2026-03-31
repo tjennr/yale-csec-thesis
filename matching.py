@@ -6,8 +6,8 @@ from interventions import apply_cap, run_assessments
 def match(workers, firms, intervention=None, max_rounds=10):
     """Runs matching process: workers apply, firms screen and offer, workers accept"""
 
-    set_intervention(firms, intervention)
-    workers_apply(workers, firms)
+    set_intervention(workers, firms, intervention)
+    workers_apply(workers, firms, intervention)
     firms_screen_workers(workers, firms, intervention)
     for _ in range(max_rounds):
         if all(filled is not None or len(rank) == 0 for filled, rank in zip(firms["filled"], firms["ranked_applicants"])):
@@ -16,8 +16,9 @@ def match(workers, firms, intervention=None, max_rounds=10):
         workers_accept(workers, firms)
 
 
-def set_intervention(firms, intervention):
+def set_intervention(workers, firms, intervention):
 
+    n = workers["n"]
     m = firms["m"]
 
     if intervention == "cap":
@@ -27,21 +28,20 @@ def set_intervention(firms, intervention):
     elif intervention == "cover_letter":
         firms["coa_time"] = np.full(m, 0.5)
     elif intervention == "assessment":
-        # coa time + effort + quality
         firms["coa_time"] = np.full(m, 0.5)
+        # quality here?
     elif intervention == "pref_signal":
-        # todo before workers apply
-        pass
+        firms["pref_signal"] = np.full((n, m), False)
 
 
-def workers_apply(workers, firms):
+def workers_apply(workers, firms, intervention):
     """Workers rank and apply to firms"""
 
     n_workers = workers["n"]
     m_firms = firms["m"]
 
-    # # Rank firms by salary with stochasity 
-    # # (to mimic workers only seeing a subset of job listings on market and non-salary factors for favoring a firm)
+    # Rank firms by salary with stochasity 
+    # (to mimic workers only seeing a subset of job listings on market and non-salary factors for favoring a firm)
     noise = np.random.normal(0, 0.3, (n_workers, m_firms))
     perceived_firm_value = firms["salary"] + noise
     firms_ranked = np.argsort(-perceived_firm_value, axis=1)
@@ -51,13 +51,20 @@ def workers_apply(workers, firms):
         capacity = workers["app_capacity"][worker]
         applied = 0
         rank_idx = 0
+        signals_sent = 0
         while applied < capacity and rank_idx < m_firms:
             firm = firms_ranked[worker][rank_idx]
             if workers["wtp_time"][worker][firm] >= firms["coa_time"][firm] \
                 and workers["wtp_effort"][worker][firm] >= firms["coa_effort"][firm] \
                 and workers["wtp_money"][worker][firm] >= firms["coa_money"][firm]:
+                
                 firms["applicants"][firm].append(worker)
                 applied += 1
+
+                if intervention == "pref_signal" and signals_sent < 3:
+                    firms["pref_signal"][worker][firm] = True
+                    signals_sent += 1
+
             rank_idx += 1
 
     # firms_ranked = np.argsort(-firms["salary"])
@@ -82,6 +89,13 @@ def firms_screen_workers(workers, firms, intervention):
             applicants = firms["applicants"][firm]
             noise = np.random.normal(0, 0.005, len(applicants))
             perceived_quality = workers["quality"][applicants] + noise
+
+            if intervention == "pref_signal":
+                # TODO: place into helper function?
+                preference_signal = firms["pref_signal"]
+                signal_mask = preference_signal[applicants, firm]
+                perceived_quality[signal_mask] += 0.05
+
             sorted_indices = np.argsort(-perceived_quality)
             firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])
 

@@ -16,7 +16,8 @@ INTERVENTIONS = [
     "cap",
     "fee",
     "cover_letter",
-    "assessment"
+    "assessment",
+    "pref_signal",
 ]
 
 
