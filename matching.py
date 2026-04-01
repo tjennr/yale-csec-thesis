@@ -30,7 +30,7 @@ def workers_apply(workers, firms, intervention):
 
     # Apply to top firms subject to application capacity and WTP >= firms' COA
     for worker in range(n_workers):
-        
+
         capacity = workers["app_capacity"][worker]
         applied = 0
         rank_idx = 0
@@ -51,12 +51,6 @@ def workers_apply(workers, firms, intervention):
                     signals_sent += 1
 
             rank_idx += 1
-
-    # firms_ranked = np.argsort(-firms["salary"])
-    # for j in firms_ranked:
-    #     salary = firms["salary"][j]
-    #     n_applicants = len(firms["applicants"][j])
-    #     print(f"Firm {j}: salary={salary:.2f}, applicants={n_applicants}")
 
 
 def firms_screen_workers(workers, firms, intervention):

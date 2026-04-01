@@ -6,6 +6,7 @@ intervention_stat = {
     "fee": 0.3,
     "cover_letter_time": 0.3,
     "assessment_time": 0.5,
+    "assessment_difficulty": 0.5,
     "pref_signal_value": 0.05
 }
 
@@ -31,6 +32,7 @@ def set_intervention(workers, firms, intervention):
 
 # CAP
 def apply_cap(firms, firm):
+    """Caps the number of applicants a firm screens"""
     cap = firms["cap"][firm]
     np.random.shuffle(firms["applicants"][firm]) # Shuffle to replicate workers simultaneously applying rather than sequentially
     firms["applicants"][firm] = firms["applicants"][firm][:cap]
@@ -39,7 +41,6 @@ def apply_cap(firms, firm):
 # ASSESSMENT
 def run_assessments(workers, firms, firm):
     """Filters applicants list to only keep workers who pass assessment"""
-
     passed = []
     for worker in firms["applicants"][firm]:
         if pass_assessment(workers, worker, firms, firm):
@@ -50,17 +51,20 @@ def run_assessments(workers, firms, firm):
 def pass_assessment(workers, worker, firms, firm):
     """Returns True if a worker passes a firm's assessment"""
 
-    assessment_difficulty = 0.5     # placeholder!!! TODO
     assessment_time = firms["coa_time"][firm]
+    assessment_difficulty = intervention_stat["assessment_difficulty"]
 
     wtp_time = workers["wtp_time"][worker][firm]
     worker_quality = workers["quality"][worker]
 
-    # TODO: not guaranteed that a high quality worker will pass difficult test -> need some randomness
+    if wtp_time < assessment_time:
+        return False
 
-    if wtp_time >= assessment_time and worker_quality >= assessment_difficulty:
-        return True
-    return False
+    # Probabilistic pass using logistic function (higher quality > difficulty -> higher prob of pass)
+    k = 10
+    bias = 0.1
+    prob_pass = 1 / (1 + np.exp(-k * (worker_quality - assessment_difficulty + bias)))
+    return np.random.rand() < prob_pass
 
 
 # PREFERENCE SIGNAL

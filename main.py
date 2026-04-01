@@ -9,7 +9,7 @@ from results_table import summarize_results, print_results_table
 
 N_WORKERS = 200
 M_FIRMS = 200
-ROUNDS = 50
+ROUNDS = 20
 
 INTERVENTIONS = [
     None,
