@@ -27,6 +27,8 @@ def pass_assessment(workers, worker, firms, firm):
     wtp_time = workers["wtp_time"][worker][firm]
     worker_quality = workers["quality"][worker]
 
+    # TODO: not guaranteed that a high quality worker will pass difficult test -> need some randomness
+
     if wtp_time >= assessment_time and worker_quality >= assessment_difficulty:
         return True
     return False

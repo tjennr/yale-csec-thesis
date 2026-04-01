@@ -3,6 +3,14 @@ from collections import deque
 from interventions import apply_cap, run_assessments
 
 
+intervention_stat = {
+    "cap": 50,
+    "fee": 0.3,
+    "cover_letter_time": 0.3,
+    "assessment_time": 0.5,
+}
+
+
 def match(workers, firms, intervention=None, max_rounds=10):
     """Runs matching process: workers apply, firms screen and offer, workers accept"""
 
@@ -22,13 +30,13 @@ def set_intervention(workers, firms, intervention):
     m = firms["m"]
 
     if intervention == "cap":
-        firms["cap"] = np.full(m, 50)
+        firms["cap"] = np.full(m, intervention_stat["cap"])
     elif intervention == "fee":
-        firms["coa_money"] = np.full(m, 0.3)
+        firms["coa_money"] = np.full(m, intervention_stat["fee"])
     elif intervention == "cover_letter":
-        firms["coa_time"] = np.full(m, 0.5)
+        firms["coa_time"] = np.full(m, intervention_stat["cover_letter_time"])
     elif intervention == "assessment":
-        firms["coa_time"] = np.full(m, 0.5)
+        firms["coa_time"] = np.full(m, intervention_stat["assessment_time"])
         # quality here?
     elif intervention == "pref_signal":
         firms["pref_signal"] = np.full((n, m), False)
@@ -92,6 +100,7 @@ def firms_screen_workers(workers, firms, intervention):
 
             if intervention == "pref_signal":
                 # TODO: place into helper function?
+                # apply_preference_signal(preference_signal)
                 preference_signal = firms["pref_signal"]
                 signal_mask = preference_signal[applicants, firm]
                 perceived_quality[signal_mask] += 0.05

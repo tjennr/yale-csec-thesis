@@ -7,8 +7,8 @@ from metrics import match_quality, assortative_match_quality
 from results_table import summarize_results, print_results_table
 
 
-N_WORKERS = 500
-M_FIRMS = 500
+N_WORKERS = 200
+M_FIRMS = 200
 ROUNDS = 50
 
 INTERVENTIONS = [
