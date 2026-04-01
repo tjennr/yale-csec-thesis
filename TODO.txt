@@ -1,6 +1,0 @@
-3/30
-[X] draft interventions
-
-[ ] improve design + clean + make consistent interventions
-[ ] figure out what to set intervention values as ???
-[ ] expand data collection - marginal benefit; results across market segments (who benefits most?)

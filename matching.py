@@ -1,6 +1,6 @@
 import numpy as np
 from collections import deque
-from interventions import apply_cap, run_assessments
+from interventions import apply_cap, run_assessments, apply_preference_signal
 
 
 intervention_stat = {
@@ -8,6 +8,7 @@ intervention_stat = {
     "fee": 0.3,
     "cover_letter_time": 0.3,
     "assessment_time": 0.5,
+    "pref_signal_value": 0.05
 }
 
 
@@ -99,11 +100,7 @@ def firms_screen_workers(workers, firms, intervention):
             perceived_quality = workers["quality"][applicants] + noise
 
             if intervention == "pref_signal":
-                # TODO: place into helper function?
-                # apply_preference_signal(preference_signal)
-                preference_signal = firms["pref_signal"]
-                signal_mask = preference_signal[applicants, firm]
-                perceived_quality[signal_mask] += 0.05
+                apply_preference_signal(firms, firm, applicants, perceived_quality, intervention_stat["pref_signal_value"])
 
             sorted_indices = np.argsort(-perceived_quality)
             firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])

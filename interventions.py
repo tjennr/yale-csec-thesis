@@ -32,3 +32,10 @@ def pass_assessment(workers, worker, firms, firm):
     if wtp_time >= assessment_time and worker_quality >= assessment_difficulty:
         return True
     return False
+
+
+# PREFERENCE SIGNAL
+def apply_preference_signal(firms, firm, applicants, perceived_quality, signal_value):
+    """Increase perceived quality of applicants who sent a preference signal"""
+    signaled_applicants = firms["pref_signal"][applicants, firm]
+    perceived_quality[signaled_applicants] += signal_value
