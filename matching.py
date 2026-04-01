@@ -1,15 +1,6 @@
 import numpy as np
 from collections import deque
-from interventions import apply_cap, run_assessments, apply_preference_signal
-
-
-intervention_stat = {
-    "cap": 50,
-    "fee": 0.3,
-    "cover_letter_time": 0.3,
-    "assessment_time": 0.5,
-    "pref_signal_value": 0.05
-}
+from interventions import set_intervention, apply_cap, run_assessments, apply_preference_signal
 
 
 def match(workers, firms, intervention=None, max_rounds=10):
@@ -23,24 +14,6 @@ def match(workers, firms, intervention=None, max_rounds=10):
             break
         firms_offer(workers, firms)
         workers_accept(workers, firms)
-
-
-def set_intervention(workers, firms, intervention):
-
-    n = workers["n"]
-    m = firms["m"]
-
-    if intervention == "cap":
-        firms["cap"] = np.full(m, intervention_stat["cap"])
-    elif intervention == "fee":
-        firms["coa_money"] = np.full(m, intervention_stat["fee"])
-    elif intervention == "cover_letter":
-        firms["coa_time"] = np.full(m, intervention_stat["cover_letter_time"])
-    elif intervention == "assessment":
-        firms["coa_time"] = np.full(m, intervention_stat["assessment_time"])
-        # quality here?
-    elif intervention == "pref_signal":
-        firms["pref_signal"] = np.full((n, m), False)
 
 
 def workers_apply(workers, firms, intervention):
@@ -57,12 +30,15 @@ def workers_apply(workers, firms, intervention):
 
     # Apply to top firms subject to application capacity and WTP >= firms' COA
     for worker in range(n_workers):
+        
         capacity = workers["app_capacity"][worker]
         applied = 0
         rank_idx = 0
         signals_sent = 0
+
         while applied < capacity and rank_idx < m_firms:
             firm = firms_ranked[worker][rank_idx]
+            
             if workers["wtp_time"][worker][firm] >= firms["coa_time"][firm] \
                 and workers["wtp_effort"][worker][firm] >= firms["coa_effort"][firm] \
                 and workers["wtp_money"][worker][firm] >= firms["coa_money"][firm]:
@@ -95,13 +71,15 @@ def firms_screen_workers(workers, firms, intervention):
             if intervention == "assessment":
                 run_assessments(workers, firms, firm)
             
+            # Firms noisily evaluate worker quality
             applicants = firms["applicants"][firm]
             noise = np.random.normal(0, 0.005, len(applicants))
             perceived_quality = workers["quality"][applicants] + noise
 
             if intervention == "pref_signal":
-                apply_preference_signal(firms, firm, applicants, perceived_quality, intervention_stat["pref_signal_value"])
+                apply_preference_signal(firms, firm, applicants, perceived_quality)
 
+            # Firms rank workers based on perceived quality
             sorted_indices = np.argsort(-perceived_quality)
             firms["ranked_applicants"][firm] = deque([applicants[k] for k in sorted_indices])
 
@@ -110,7 +88,6 @@ def firms_offer(workers, firms):
     """Firms give an offer to their perceived highest-quality applicant"""
 
     for firm in range(firms["m"]):
-        # Skip if firm already has position filled or has no applicants
         if firms["filled"][firm] is not None or not firms["ranked_applicants"][firm]:
             continue
 
