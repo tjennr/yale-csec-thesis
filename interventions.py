@@ -4,8 +4,8 @@ import numpy as np
 intervention_stat = {
     "cap": 50,
     "fee": 0.3,
-    "cover_letter_time": 0.3,
-    "assessment_time": 0.5,
+    "cover_letter_effort": 0.3,
+    "assessment_effort": 0.5,
     "assessment_difficulty": 0.5,
     "pref_signal_value": 0.05
 }
@@ -22,10 +22,10 @@ def set_intervention(workers, firms, intervention):
     elif intervention == "fee":
         firms["coa_money"] = np.full(m, intervention_stat["fee"])
     elif intervention == "cover_letter":
-        firms["coa_time"] = np.full(m, intervention_stat["cover_letter_time"])
+        firms["coa_effort"] = np.full(m, intervention_stat["cover_letter_effort"])
     elif intervention == "assessment":
-        firms["coa_time"] = np.full(m, intervention_stat["assessment_time"])
-        # quality here?
+        firms["coa_effort"] = np.full(m, intervention_stat["assessment_effort"])
+        firms["assessment_difficulty"] = np.full(m, intervention_stat["assessment_difficulty"])
     elif intervention == "pref_signal":
         firms["pref_signal"] = np.full((n, m), False)
 
@@ -51,13 +51,13 @@ def run_assessments(workers, firms, firm):
 def pass_assessment(workers, worker, firms, firm):
     """Returns True if a worker passes a firm's assessment"""
 
-    assessment_time = firms["coa_time"][firm]
-    assessment_difficulty = intervention_stat["assessment_difficulty"]
+    assessment_effort = firms["coa_effort"][firm]
+    assessment_difficulty = firms["assessment_difficulty"][firm]
 
-    wtp_time = workers["wtp_time"][worker][firm]
+    wtp_effort = workers["wtp_effort"][worker][firm]
     worker_quality = workers["quality"][worker]
 
-    if wtp_time < assessment_time:
+    if wtp_effort < assessment_effort:
         return False
 
     # Probabilistic pass using logistic function (higher quality > difficulty -> higher prob of pass)

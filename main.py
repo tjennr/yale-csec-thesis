@@ -37,7 +37,7 @@ def run_simulation():
         firms["ranked_applicants"] = [deque() for _ in range(M_FIRMS)]
         firms["filled"] = [None for _ in range(M_FIRMS)]
         firms["coa_money"] = np.full(M_FIRMS, 0)
-        firms["coa_time"] = np.full(M_FIRMS, 0)
+        firms["coa_effort"] = np.full(M_FIRMS, 0)
 
     # Match -> compute results -> clean matchings
     results = {}

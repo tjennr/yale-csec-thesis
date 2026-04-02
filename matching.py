@@ -39,8 +39,7 @@ def workers_apply(workers, firms, intervention):
         while applied < capacity and rank_idx < m_firms:
             firm = firms_ranked[worker][rank_idx]
             
-            if workers["wtp_time"][worker][firm] >= firms["coa_time"][firm] \
-                and workers["wtp_effort"][worker][firm] >= firms["coa_effort"][firm] \
+            if workers["wtp_effort"][worker][firm] >= firms["coa_effort"][firm] \
                 and workers["wtp_money"][worker][firm] >= firms["coa_money"][firm]:
                 
                 firms["applicants"][firm].append(worker)
