@@ -5,7 +5,7 @@ intervention_stat = {
     "cap": 50,
     "fee": 0.3,
     "cover_letter_effort": 0.3,
-    "assessment_effort": 0.5,
+    "assessment_effort": 0.5,       # TODO: should assessment attributes differ across firms?
     "assessment_difficulty": 0.5,
     "pref_signal_value": 0.05
 }
