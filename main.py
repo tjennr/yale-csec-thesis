@@ -4,11 +4,12 @@ from collections import deque
 from agents import generate_workers, generate_firms
 from matching import match
 from metrics import match_quality, assortative_match_quality, segment_market
-from results_table import summarize_results, print_results_table, summarize_segments, print_segment_summary, plot_efficiency_bar
+from results import summarize_results, print_results_table, plot_efficiency_bar, plot_match_rate_bar
+from segmented_market_results import summarize_segments, print_segment_summary
 
 
-N_WORKERS = 500
-M_FIRMS = 500
+N_WORKERS = 200
+M_FIRMS = 200
 ROUNDS = 50
 
 INTERVENTIONS = [
@@ -43,11 +44,11 @@ def run_simulation():
     results = {}
     for intervention in INTERVENTIONS:
         match(workers, firms, intervention)
-        quality, matches = match_quality(workers, firms)
+        quality, match_rate = match_quality(workers, firms)
         segments = segment_market(workers, firms)
         key = intervention if intervention is not None else "baseline"
         results[f"{key}_quality"] = quality
-        results[f"{key}_matches"] = matches
+        results[f"{key}_match_rate"] = match_rate
         results[f"{key}_segments"] = segments
         reset_state()
         
@@ -75,7 +76,8 @@ if __name__ == "__main__":
     # Print metrics
     print(f"\nTime: {end - start:.2f}s")
     print_results_table(summary)
-    print_segment_summary(segment_summary)
+    # print_segment_summary(segment_summary)
 
     # Graphs
-    plot_efficiency_bar(summary, INTERVENTIONS)
+    # plot_efficiency_bar(summary, INTERVENTIONS)
+    plot_match_rate_bar(summary, INTERVENTIONS)

@@ -5,15 +5,18 @@ def match_quality(workers, firms):
     """Returns total match quality"""
 
     total_match_quality = 0
-    n = 0
+    match_count = 0
 
     for worker in range(workers["n"]):
         firm = workers["accepted"][worker]
         if firm is not None:
             total_match_quality += workers["quality"][worker] * firms["salary"][firm]
-            n += 1
+            match_count += 1
 
-    return total_match_quality, n
+    possible_matches = min(workers["n"], firms["m"])
+    match_rate = match_count / possible_matches
+
+    return total_match_quality, match_rate
 
 
 def assortative_match_quality(workers, firms):
