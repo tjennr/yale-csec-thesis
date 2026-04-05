@@ -84,34 +84,39 @@ def print_results_table(summary):
     print(f"Quality: {a_mean:.3f} [{a_low:.3f}, {a_high:.3f}]\n")
 
 
-def plot_efficiency_bar(summary, interventions):
+def plot_bar(summary, interventions, metric, ylabel, title, filename):
 
     labels = []
     means = []
     errors = []
+    colors = []
 
     for intervention in interventions:
         key = intervention if intervention is not None else "baseline"
 
         stats = summary[key]
-        mean = stats["efficiency_mean"]
-        ci_low, ci_high = stats["efficiency_ci"]
+        mean = stats[f"{metric}_mean"]
+        ci_low, ci_high = stats[f"{metric}_ci"]
 
         labels.append(key)
         means.append(mean)
         errors.append([mean - ci_low, ci_high - mean])
 
-    errors = np.array(errors).T
+        if key == "baseline":
+            colors.append("red")
+        else:
+            colors.append("steelblue")
 
+    errors = np.array(errors).T
     x = np.arange(len(labels))
 
     plt.figure()
-    plt.bar(x, means, yerr=errors, capsize=5)
+    plt.bar(x, means, yerr=errors, capsize=5, color=colors)
 
     plt.xticks(x, labels)
     plt.xlabel("Intervention")
-    plt.ylabel("Match Efficiency")
-    plt.title("Match Efficiency by Intervention (95% CI)")
+    plt.ylabel(ylabel)
+    plt.title(title)
 
     y_min_plot = 0
     y_max_plot = max(means) + 0.05
@@ -120,45 +125,5 @@ def plot_efficiency_bar(summary, interventions):
     plt.ylim(y_min_plot, y_max_plot)
 
     plt.tight_layout()
-    plt.savefig("efficiency_bar_chart.png", dpi=300)
-    plt.show()
-
-
-def plot_match_rate_bar(summary, interventions):
-
-    labels = []
-    means = []
-    errors = []
-
-    for intervention in interventions:
-        key = intervention if intervention is not None else "baseline"
-
-        stats = summary[key]
-        mean = stats["match_rate_mean"]
-        ci_low, ci_high = stats["match_rate_ci"]
-
-        labels.append(key)
-        means.append(mean)
-        errors.append([mean - ci_low, ci_high - mean])
-
-    errors = np.array(errors).T
-
-    x = np.arange(len(labels))
-
-    plt.figure()
-    plt.bar(x, means, yerr=errors, capsize=5)
-
-    plt.xticks(x, labels)
-    plt.xlabel("Intervention")
-    plt.ylabel("Match Rate")
-    plt.title("Match Rate by Intervention (95% CI)")
-
-    y_min_plot = 0
-    y_max_plot = max(means) + 0.05
-    ticks = np.arange(y_min_plot, y_max_plot + 0.1, 0.1)
-    plt.yticks(ticks)
-    plt.ylim(y_min_plot, y_max_plot)
-
-    plt.tight_layout()
-    plt.savefig("match_rate_bar_chart.png", dpi=300)
+    plt.savefig(filename, dpi=300)
     plt.show()

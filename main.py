@@ -4,7 +4,7 @@ from collections import deque
 from agents import generate_workers, generate_firms
 from matching import match
 from metrics import match_quality, assortative_match_quality, segment_market
-from results import summarize_results, print_results_table, plot_efficiency_bar, plot_match_rate_bar
+from results import summarize_results, print_results_table, plot_bar
 from segmented_market_results import summarize_segments, print_segment_summary
 
 
@@ -79,5 +79,18 @@ if __name__ == "__main__":
     # print_segment_summary(segment_summary)
 
     # Graphs
-    # plot_efficiency_bar(summary, INTERVENTIONS)
-    plot_match_rate_bar(summary, INTERVENTIONS)
+    plot_bar(
+        summary, INTERVENTIONS,
+        metric="efficiency",
+        ylabel="Match Efficiency",
+        title="Match Efficiency by Intervention (95% CI)",
+        filename="efficiency_bar_chart.png"
+    )
+
+    plot_bar(
+        summary, INTERVENTIONS,
+        metric="match_rate",
+        ylabel="Match Rate",
+        title="Match Rate by Intervention (95% CI)",
+        filename="match_rate_bar_chart.png"
+    )
