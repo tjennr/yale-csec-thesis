@@ -5,7 +5,7 @@ from agents import generate_workers, generate_firms
 from matching import match
 from metrics import match_quality, assortative_match_quality, segment_market
 from results import summarize_results, print_results_table, plot_bar
-from segmented_market_results import summarize_segments, print_segment_summary
+from segmented_market_results import summarize_segments, print_segment_summary, plot_segment_outcomes, plot_segment_match_rates, plot_segment_congestion
 
 
 N_WORKERS = 200
@@ -34,6 +34,7 @@ def run_simulation():
         workers["offers"] = [[] for _ in range(N_WORKERS)]
         workers["accepted"] = [None for _ in range(N_WORKERS)]
 
+        firms["applications_received"] = 0
         firms["applicants"] = [[] for _ in range(M_FIRMS)]
         firms["ranked_applicants"] = [deque() for _ in range(M_FIRMS)]
         firms["filled"] = [None for _ in range(M_FIRMS)]
@@ -44,11 +45,12 @@ def run_simulation():
     results = {}
     for intervention in INTERVENTIONS:
         match(workers, firms, intervention)
-        quality, match_rate = match_quality(workers, firms)
+        quality, match_count = match_quality(workers, firms)
         segments = segment_market(workers, firms)
         key = intervention if intervention is not None else "baseline"
+        results[f"{key}_application_count"] = firms["applications_received"]
         results[f"{key}_quality"] = quality
-        results[f"{key}_match_rate"] = match_rate
+        results[f"{key}_match_count"] = match_count
         results[f"{key}_segments"] = segments
         reset_state()
         
@@ -68,7 +70,7 @@ if __name__ == "__main__":
         results.append(result)
 
     # Results
-    summary = summarize_results(results, INTERVENTIONS)
+    summary = summarize_results(results, INTERVENTIONS, possible_matches=min(N_WORKERS, M_FIRMS))
     segment_summary = summarize_segments(results, INTERVENTIONS)
 
     end = time.time()
@@ -84,7 +86,7 @@ if __name__ == "__main__":
         metric="efficiency",
         ylabel="Match Efficiency",
         title="Match Efficiency by Intervention (95% CI)",
-        filename="efficiency_bar_chart.png"
+        filename="graphs/efficiency_bar_chart.png"
     )
 
     plot_bar(
@@ -92,5 +94,17 @@ if __name__ == "__main__":
         metric="match_rate",
         ylabel="Match Rate",
         title="Match Rate by Intervention (95% CI)",
-        filename="match_rate_bar_chart.png"
+        filename="graphs/match_rate_bar_chart.png"
     )
+
+    plot_bar(
+        summary, INTERVENTIONS,
+        metric="congestion",
+        ylabel="Congestion",
+        title="Congestion by Intervention (95% CI)",
+        filename="graphs/congestion_bar_chart.png"
+    )
+
+    # plot_segment_outcomes(segment_summary, INTERVENTIONS)
+    # plot_segment_match_rates(segment_summary, INTERVENTIONS)
+    # plot_segment_congestion(segment_summary, INTERVENTIONS)

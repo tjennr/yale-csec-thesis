@@ -13,10 +13,7 @@ def match_quality(workers, firms):
             total_match_quality += workers["quality"][worker] * firms["salary"][firm]
             match_count += 1
 
-    possible_matches = min(workers["n"], firms["m"])
-    match_rate = match_count / possible_matches
-
-    return total_match_quality, match_rate
+    return total_match_quality, match_count
 
 
 def assortative_match_quality(workers, firms):
@@ -44,7 +41,7 @@ def segment_market(workers, firms):
     ]
 
     firm_bins = [
-        {"count": 0, "filled": 0, "quality_sum": 0}
+        {"count": 0, "filled": 0, "quality_sum": 0, "application_count": 0}
         for _ in range(n_bins)
     ]
 
@@ -64,6 +61,8 @@ def segment_market(workers, firms):
         b = min(int(s / bin_width), n_bins - 1)
 
         firm_bins[b]["count"] += 1
+
+        firm_bins[b]["application_count"] += len(firms["applicants"][f])
 
         worker = firms["filled"][f]
         if worker is not None:
