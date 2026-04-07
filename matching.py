@@ -43,7 +43,6 @@ def workers_apply(workers, firms, intervention):
                 and workers["wtp_money"][worker][firm] >= firms["coa_money"][firm]:
                 
                 firms["applicants"][firm].append(worker)
-                firms["applications_received"] += 1
                 applied += 1
 
                 if intervention == "pref_signal" and signals_sent < 3:

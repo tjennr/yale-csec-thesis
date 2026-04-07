@@ -35,7 +35,7 @@ def apply_cap(firms, firm):
     """Caps the number of applicants a firm screens"""
     cap = firms["cap"][firm]
     np.random.shuffle(firms["applicants"][firm]) # Shuffle to replicate workers simultaneously applying rather than sequentially
-    firms["applicants"][firm] = firms["applicants"][firm][:cap]
+    firms["applicants"][firm] = firms["applicants"][firm][:cap] # Cut down to only cap num of applications
 
 
 # ASSESSMENT

@@ -1,73 +1,71 @@
 def summarize_segments(results, interventions, bin_width=0.1):
+    """Summarize results for segmented market into a table"""
     n_bins = int(1 / bin_width)
     segment_summary = {}
 
     for intervention in interventions:
         key = intervention if intervention is not None else "baseline"
 
-        # Initialize aggregates
-        agg_workers = [
-            {"count": 0, "matched": 0, "salary_sum": 0}
-            for _ in range(n_bins)
-        ]
-        agg_firms = [
-            {"count": 0, "filled": 0, "quality_sum": 0}
-            for _ in range(n_bins)
-        ]
-
-        # Aggregate across simulations
-        for r in results:
-            seg = r[f"{key}_segments"]
-
-            for b in range(n_bins):
-                for k in agg_workers[b]:
-                    agg_workers[b][k] += seg["workers"][b][k]
-                for k in agg_firms[b]:
-                    agg_firms[b][k] += seg["firms"][b][k]
-
-        # Convert to final metrics
-        worker_outcomes = []
-        for b in agg_workers:
-            avg_salary = (
-                b["salary_sum"] / b["matched"] if b["matched"] > 0 else 0
-            )
-            match_prob = b["matched"] / b["count"] if b["count"] > 0 else 0
-
-            worker_outcomes.append({
-                "avg_salary": avg_salary,
-                "match_prob": match_prob,
-            })
-
-        firm_outcomes = []
-        for b in agg_firms:
-            avg_quality = (
-                b["quality_sum"] / b["filled"] if b["filled"] > 0 else 0
-            )
-            fill_prob = b["filled"] / b["count"] if b["count"] > 0 else 0
-
-            firm_outcomes.append({
-                "avg_quality": avg_quality,
-                "fill_prob": fill_prob,
-            })
+        agg_workers, agg_firms = aggregate_bins(results, key, n_bins)
 
         segment_summary[key] = {
-            "workers": worker_outcomes,
-            "firms": firm_outcomes,
+            "workers": compute_worker_outcomes(agg_workers),
+            "firms": compute_firm_outcomes(agg_firms),
         }
 
     add_segment_deltas(segment_summary)
-
     return segment_summary
 
 
+def aggregate_bins(results, key, n_bins):
+    """Aggregate results into bins"""
+    agg_workers = [{"count": 0, "matched": 0, "salary_sum": 0} for _ in range(n_bins)]
+    agg_firms = [{"count": 0, "filled": 0, "quality_sum": 0, "application_count": 0} for _ in range(n_bins)]
+
+    for r in results:
+        seg = r[f"{key}_segments"]
+
+        for b in range(n_bins):
+            for k in agg_workers[b]:
+                agg_workers[b][k] += seg["workers"][b][k]
+            for k in agg_firms[b]:
+                agg_firms[b][k] += seg["firms"][b][k]
+
+    return agg_workers, agg_firms
+
+
+def compute_worker_outcomes(agg_workers):
+    """Compute average salary and match probability for worker bins"""
+    out = []
+    for b in agg_workers:
+        out.append({
+            "avg_salary": b["salary_sum"] / b["matched"] if b["matched"] > 0 else 0,
+            "match_prob": b["matched"] / b["count"] if b["count"] > 0 else 0,
+        })
+    return out
+
+
+def compute_firm_outcomes(agg_firms):
+    """Compute average quality, match probability, and apps/firm for firm bins"""
+    out = []
+    for b in agg_firms:
+        out.append({
+            "avg_quality": b["quality_sum"] / b["filled"] if b["filled"] > 0 else 0,
+            "fill_prob": b["filled"] / b["count"] if b["count"] > 0 else 0,
+            "applications_per_firm": b["application_count"] / b["count"] if b["count"] > 0 else 0,
+        })
+    return out
+
+
 def add_segment_deltas(segment_summary):
+    """Add change in results to segmented market table"""
     baseline = segment_summary["baseline"]
     for key in segment_summary:
         if key == "baseline":
             continue
         for side in ["workers", "firms"]:
             for b in range(len(segment_summary[key][side])):
-                metrics = list(segment_summary[key][side][b].keys())  # FIX
+                metrics = list(segment_summary[key][side][b].keys())
                 for metric in metrics:
                     segment_summary[key][side][b][f"delta_{metric}"] = (
                         segment_summary[key][side][b][metric]
@@ -76,6 +74,7 @@ def add_segment_deltas(segment_summary):
 
 
 def print_segment_summary(segment_summary, bin_width=0.1):
+    """Printed results table for segmented market"""
     print("\n=== SEGMENTED RESULTS ===\n")
 
     n_bins = int(1 / bin_width)

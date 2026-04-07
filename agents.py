@@ -40,7 +40,6 @@ def generate_firms(m_firms):
 
     firms = {
         "m": m_firms,
-        "applications_received": 0,
         "salary": np.clip(np.random.normal(0.5, 0.15, m_firms), 0, 1),
         "coa_money": np.full(m_firms, 0),
         "coa_effort": np.full(m_firms, 0),
