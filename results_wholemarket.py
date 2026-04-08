@@ -1,15 +1,14 @@
 import numpy as np
-import matplotlib.pyplot as plt
+from main import N_WORKERS, M_FIRMS, INTERVENTIONS
 
-
-def summarize_results(results, interventions, n_workers, m_firms):
+def summarize_results(results):
     """Summarize results for match rate, quality, efficiency, apps/firm, and change in apps/firm"""
     summary = {}
 
-    possible_matches = min(n_workers, m_firms)
+    possible_matches = min(N_WORKERS, M_FIRMS)
 
     # Compute mean and 95% CI values across all simulations
-    for intervention in interventions:
+    for intervention in INTERVENTIONS:
         key = intervention if intervention is not None else "baseline"
 
         # Match rate

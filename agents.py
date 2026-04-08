@@ -49,3 +49,18 @@ def generate_firms(m_firms):
         "filled": [None for _ in range(m_firms)]
     }
     return firms
+
+
+def reset_agent_matchings(workers, firms):
+    """Reset agent match state"""
+    n = workers["n"]
+    m = firms["m"]
+
+    workers["offers"] = [[] for _ in range(n)]
+    workers["accepted"] = [None for _ in range(n)]
+    firms["applications_received"] = 0
+    firms["applicants"] = [[] for _ in range(m)]
+    firms["ranked_applicants"] = [deque() for _ in range(m)]
+    firms["filled"] = [None for _ in range(m)]
+    firms["coa_money"] = np.full(m, 0)
+    firms["coa_effort"] = np.full(m, 0)

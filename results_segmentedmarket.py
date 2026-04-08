@@ -1,9 +1,11 @@
-def summarize_segments(results, interventions, bin_width=0.1):
+from main import INTERVENTIONS
+
+def summarize_segments(results, bin_width=0.1):
     """Summarize results for segmented market into a table"""
     n_bins = int(1 / bin_width)
     segment_summary = {}
 
-    for intervention in interventions:
+    for intervention in INTERVENTIONS:
         key = intervention if intervention is not None else "baseline"
 
         agg_workers, agg_firms = aggregate_bins(results, key, n_bins)

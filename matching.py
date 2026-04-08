@@ -1,12 +1,12 @@
 import numpy as np
 from collections import deque
-from interventions import set_intervention, apply_cap, run_assessments, apply_preference_signal
+from main import N_WORKERS, M_FIRMS
+from interventions import apply_cap, run_assessments, apply_preference_signal
 
 
 def match(workers, firms, intervention=None, max_rounds=10):
     """Runs matching process: workers apply, firms screen and offer, workers accept"""
 
-    set_intervention(workers, firms, intervention)
     workers_apply(workers, firms, intervention)
     firms_screen_workers(workers, firms, intervention)
     for _ in range(max_rounds):
@@ -19,17 +19,14 @@ def match(workers, firms, intervention=None, max_rounds=10):
 def workers_apply(workers, firms, intervention):
     """Workers rank and apply to firms"""
 
-    n_workers = workers["n"]
-    m_firms = firms["m"]
-
     # Rank firms by salary with stochasity 
     # (to mimic workers only seeing a subset of job listings on market and non-salary factors for favoring a firm)
-    noise = np.random.normal(0, 0.3, (n_workers, m_firms))
+    noise = np.random.normal(0, 0.3, (N_WORKERS, M_FIRMS))
     perceived_firm_value = firms["salary"] + noise
     firms_ranked = np.argsort(-perceived_firm_value, axis=1)
 
     # Apply to top firms subject to application capacity and WTP >= firms' COA
-    for worker in range(n_workers):
+    for worker in range(N_WORKERS):
 
         capacity = workers["app_capacity"][worker]
         applied = 0
@@ -55,7 +52,7 @@ def workers_apply(workers, firms, intervention):
 def firms_screen_workers(workers, firms, intervention):
     """Firms rank workers by perceived quality"""
 
-    for firm in range(firms["m"]):
+    for firm in range(M_FIRMS):
         if len(firms["applicants"][firm]) > 0:
 
             if intervention == "cap":
@@ -80,7 +77,7 @@ def firms_screen_workers(workers, firms, intervention):
 def firms_offer(workers, firms):
     """Firms give an offer to their perceived highest-quality applicant"""
 
-    for firm in range(firms["m"]):
+    for firm in range(M_FIRMS):
         if firms["filled"][firm] is not None or not firms["ranked_applicants"][firm]:
             continue
 
@@ -92,7 +89,7 @@ def firms_offer(workers, firms):
 def workers_accept(workers, firms):
     """Workers accept their highest salary offer"""
 
-    for worker in range(workers["n"]):
+    for worker in range(N_WORKERS):
         if workers["accepted"][worker] is not None or not workers["offers"][worker]:
             continue
 
@@ -102,7 +99,7 @@ def workers_accept(workers, firms):
         firms["filled"][best_firm] = worker
 
         # Remove accepted worker from other firms' applicant pools -> exit market
-        for firm in range(firms["m"]):
+        for firm in range(M_FIRMS):
             if firm != best_firm:
                 if worker in firms["ranked_applicants"][firm]:
                     firms["ranked_applicants"][firm].remove(worker)

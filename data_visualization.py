@@ -2,6 +2,60 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def plot_whole(summary, interventions):
+
+    plot_bar_wholemarket(
+        summary, interventions,
+        metric="applications_per_firm",
+        ylabel="Applications per Firm",
+        title="Applications per Firm by Intervention (95% CI)",
+        filename="graphs/applications_bar_chart.png"
+    )
+    plot_bar_wholemarket(
+        summary, interventions,
+        metric="match_rate",
+        ylabel="Match Rate",
+        title="Match Rate by Intervention (95% CI)",
+        filename="graphs/match_rate_bar_chart.png"
+    )
+    plot_bar_wholemarket(
+        summary, interventions,
+        metric="efficiency",
+        ylabel="Match Efficiency",
+        title="Match Efficiency by Intervention (95% CI)",
+        filename="graphs/efficiency_bar_chart.png"
+    )
+
+
+def plot_segmented(segment_summary, interventions):
+
+    plot_line_segment(
+        segment_summary,
+        interventions,
+        side="firms",
+        metric="applications_per_firm",
+        ylabel="Applications per Firm",
+        title="Applications per Firm by Salary",
+        filename="graphs/segment_congestion.png"
+    )
+    plot_line_segment_panel(
+        segment_summary,
+        interventions,
+        metrics=[("workers", "match_prob"), ("firms", "fill_prob")],
+        ylabels=["Match Probability", "Fill Probability"],
+        titles=["Worker Match Probability", "Firm Fill Probability"],
+        filename="graphs/segment_match_rates.png"
+    )
+    plot_line_segment_panel(
+        segment_summary,
+        interventions,
+        metrics=[("workers", "avg_salary"), ("firms", "avg_quality")],
+        ylabels=["Average Salary", "Average Worker Quality"],
+        titles=["Worker Outcomes", "Firm Outcomes"],
+        filename="graphs/segment_outcomes.png"
+    )
+
+
 def plot_bar_wholemarket(summary, interventions, metric, ylabel, title, filename):
     """
     Plot bar chart that compares each intervention on whole market level
@@ -45,7 +99,7 @@ def plot_bar_wholemarket(summary, interventions, metric, ylabel, title, filename
 
     plt.tight_layout()
     plt.savefig(filename, dpi=300)
-    plt.show()
+    plt.close()
 
 
 def plot_line_segment(segment_summary, interventions, side, metric, ylabel, title, filename, bin_width=0.1):
@@ -79,7 +133,7 @@ def plot_line_segment(segment_summary, interventions, side, metric, ylabel, titl
 
     plt.tight_layout()
     plt.savefig(filename, dpi=300)
-    plt.show()
+    plt.close()
 
 
 def plot_line_segment_panel(segment_summary, interventions, metrics, ylabels, titles, filename, bin_width=0.1):
@@ -117,4 +171,15 @@ def plot_line_segment_panel(segment_summary, interventions, metrics, ylabels, ti
 
     plt.tight_layout(rect=[0, 0, 1, 0.92])
     plt.savefig(filename, dpi=300)
-    plt.show()
+    plt.close()
+
+
+def plot_param_effect(x, y, xlabel, ylabel, title, filename):
+    plt.figure()
+    plt.plot(x, y, marker='o')
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.grid(True)
+    plt.savefig(filename)
+    plt.close()
