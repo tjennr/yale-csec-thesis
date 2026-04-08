@@ -1,5 +1,4 @@
 import numpy as np
-# from main import N_WORKERS, M_FIRMS
 
 
 INTERVENTION_STAT = {
@@ -12,28 +11,31 @@ INTERVENTION_STAT = {
 }
 
 
-def set_intervention(firms, intervention):
+def set_intervention(workers, firms, intervention):
     """Update firm attributes according to congestion intervention strategy"""
 
+    n = workers["n"]
+    m = firms["m"]
+
     if intervention == "cap":
-        firms["cap"] = np.full(M_FIRMS, INTERVENTION_STAT["cap"])
+        firms["cap"] = np.full(m, INTERVENTION_STAT["cap"])
     elif intervention == "fee":
-        firms["coa_money"] = np.full(M_FIRMS, INTERVENTION_STAT["fee"])
+        firms["coa_money"] = np.full(m, INTERVENTION_STAT["fee"])
     elif intervention == "cover_letter":
-        firms["coa_effort"] = np.full(M_FIRMS, INTERVENTION_STAT["cover_letter_effort"])
+        firms["coa_effort"] = np.full(m, INTERVENTION_STAT["cover_letter_effort"])
     elif intervention == "assessment":
-        firms["coa_effort"] = np.full(M_FIRMS, INTERVENTION_STAT["assessment_effort"])
-        firms["assessment_difficulty"] = np.full(M_FIRMS, INTERVENTION_STAT["assessment_difficulty"])
+        firms["coa_effort"] = np.full(m, INTERVENTION_STAT["assessment_effort"])
+        firms["assessment_difficulty"] = np.full(m, INTERVENTION_STAT["assessment_difficulty"])
     elif intervention == "pref_signal":
-        firms["pref_signal"] = np.full((N_WORKERS, M_FIRMS), False)
+        firms["pref_signal"] = np.full((n, m), False)
 
 
 def set_custom_intervention(firms, intervention, value):
 
     if intervention == "cap":
-        firms["cap"] = np.full(M_FIRMS, value)
+        firms["cap"] = np.full(firms["m"], value)
     elif intervention == "fee":
-        firms["coa_money"] = np.full(M_FIRMS, value)
+        firms["coa_money"] = np.full(firms["m"], value)
 
 
 # CAP

@@ -10,7 +10,7 @@ from increasing_param_sim import compute_plot_increasing_params
 
 
 N_WORKERS = 200
-M_FIRMS = 50
+M_FIRMS = 200
 ROUNDS = 10
 
 INTERVENTIONS = [
@@ -38,7 +38,7 @@ def simulate_market(interventions, param=None, value=None):
         if intervention == param and value is not None:
             set_custom_intervention(firms, intervention, value)
         else:
-            set_intervention(firms, intervention)
+            set_intervention(workers, firms, intervention)
 
         # Run matching
         match(workers, firms, intervention)
@@ -70,8 +70,8 @@ if __name__ == "__main__":
         results.append(res)
 
     # Results
-    summary = summarize_results(results)
-    segment_summary = summarize_segments(results)
+    summary = summarize_results(results, INTERVENTIONS, N_WORKERS, M_FIRMS)
+    segment_summary = summarize_segments(results, INTERVENTIONS)
 
     end = time.time()
 
@@ -83,4 +83,4 @@ if __name__ == "__main__":
     plot_whole(summary, INTERVENTIONS)
     plot_segmented(segment_summary, INTERVENTIONS)
 
-    compute_plot_increasing_params()
+    compute_plot_increasing_params(ROUNDS, N_WORKERS, M_FIRMS)

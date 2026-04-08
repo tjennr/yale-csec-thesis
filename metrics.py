@@ -1,5 +1,4 @@
 import numpy as np
-from main import N_WORKERS, M_FIRMS
 
 
 def match_quality(workers, firms):
@@ -8,7 +7,7 @@ def match_quality(workers, firms):
     total_match_quality = 0
     match_count = 0
 
-    for worker in range(N_WORKERS):
+    for worker in range(workers["n"]):
         firm = workers["accepted"][worker]
         if firm is not None:
             total_match_quality += workers["quality"][worker] * firms["salary"][firm]
@@ -46,7 +45,7 @@ def segment_market(workers, firms):
         for _ in range(n_bins)
     ]
 
-    for w in range(N_WORKERS):
+    for w in range(workers["n"]):
         q = workers["quality"][w]
         b = min(int(q / bin_width), n_bins - 1)
 
@@ -57,7 +56,7 @@ def segment_market(workers, firms):
             worker_bins[b]["matched"] += 1
             worker_bins[b]["salary_sum"] += firms["salary"][firm]
 
-    for f in range(M_FIRMS):
+    for f in range(firms["m"]):
         s = firms["salary"][f]
         b = min(int(s / bin_width), n_bins - 1)
 

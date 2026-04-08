@@ -1,14 +1,14 @@
 import numpy as np
-from main import N_WORKERS, M_FIRMS, INTERVENTIONS
 
-def summarize_results(results):
+
+def summarize_results(results, interventions, n_workers, m_firms):
     """Summarize results for match rate, quality, efficiency, apps/firm, and change in apps/firm"""
     summary = {}
 
-    possible_matches = min(N_WORKERS, M_FIRMS)
+    possible_matches = min(n_workers, m_firms)
 
     # Compute mean and 95% CI values across all simulations
-    for intervention in INTERVENTIONS:
+    for intervention in interventions:
         key = intervention if intervention is not None else "baseline"
 
         # Match rate
@@ -26,7 +26,7 @@ def summarize_results(results):
 
         # Applications per firm
         application_count = [r[f"{key}_application_count"] for r in results]
-        apps_per_firm = [app_count / M_FIRMS for app_count in application_count]
+        apps_per_firm = [app_count / m_firms for app_count in application_count]
 
         def compute_stats(values):
             mean = np.mean(values)

@@ -1,16 +1,15 @@
 import numpy as np
-from main import simulate_market, N_WORKERS, M_FIRMS
 from results_wholemarket import summarize_results
 from data_visualization import plot_param_effect
 
 
-def compute_plot_increasing_params():
+def compute_plot_increasing_params(rounds, n_workers, m_firms):
 
     fee_values = np.linspace(0, 1.0, 21) # 0 to 1.0 in 0.05 increments
-    fee_results = simulate_increasing_param("fee", fee_values)
+    fee_results = simulate_increasing_param("fee", fee_values, rounds, n_workers, m_firms)
 
     cap_values = np.arange(10, 110, 10)
-    cap_results = simulate_increasing_param("cap", cap_values)
+    cap_results = simulate_increasing_param("cap", cap_values, rounds, n_workers, m_firms)
 
     x, y = extract_metric_over_param(fee_results, "fee", "efficiency")
     plot_param_effect(
@@ -49,11 +48,12 @@ def compute_plot_increasing_params():
     )
 
 
-def simulate_increasing_param(param, values, rounds):
+def simulate_increasing_param(param, values, rounds, n_workers, m_firms):
     """
     Run market simulations across a set of increasing values for a param
     param: fee, cap
     """
+    from main import simulate_market
 
     all_results = {}
 
@@ -69,7 +69,7 @@ def simulate_increasing_param(param, values, rounds):
             )
             results.append(res)
 
-        summary = summarize_results(results, [None, param], N_WORKERS, M_FIRMS)
+        summary = summarize_results(results, [None, param], n_workers, m_firms)
         all_results[val] = summary
 
     return all_results
