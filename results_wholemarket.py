@@ -26,7 +26,7 @@ def summarize_results(results):
 
         # Applications per firm
         application_count = [r[f"{key}_application_count"] for r in results]
-        apps_per_firm = [app_count / m_firms for app_count in application_count]
+        apps_per_firm = [app_count / M_FIRMS for app_count in application_count]
 
         def compute_stats(values):
             mean = np.mean(values)

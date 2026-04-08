@@ -1,5 +1,5 @@
 import numpy as np
-from main import run_simulation, N_WORKERS, M_FIRMS
+from main import simulate_market, N_WORKERS, M_FIRMS
 from results_wholemarket import summarize_results
 from data_visualization import plot_param_effect
 
@@ -50,6 +50,11 @@ def compute_plot_increasing_params():
 
 
 def simulate_increasing_param(param, values, rounds):
+    """
+    Run market simulations across a set of increasing values for a param
+    param: fee, cap
+    """
+
     all_results = {}
 
     for val in values:
@@ -57,7 +62,7 @@ def simulate_increasing_param(param, values, rounds):
 
         # Runs ROUNDS of simulations for val
         for _ in range(rounds):
-            res = run_simulation(
+            res = simulate_market(
                 interventions=[None, param],
                 param=param,
                 value=val

@@ -1,5 +1,5 @@
 import numpy as np
-from main import N_WORKERS, M_FIRMS
+# from main import N_WORKERS, M_FIRMS
 
 
 INTERVENTION_STAT = {

@@ -52,7 +52,7 @@ def generate_firms(m_firms):
 
 
 def reset_agent_matchings(workers, firms):
-    """Reset agent match state"""
+    """Reset agents' match state"""
     n = workers["n"]
     m = firms["m"]
 
